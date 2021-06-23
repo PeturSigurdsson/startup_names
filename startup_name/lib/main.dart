@@ -82,6 +82,15 @@ class _MyHomePageState extends State<MyHomePage> {
         _error = true;
       });
     }
+    if (_error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error loading firebase")),
+      );
+    } else if (!_initialized) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Loading...")),
+      );
+    }
   }
 
   initializeUser() async {
@@ -102,15 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error loading firebase")),
-      );
-    } else if (!_initialized) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Loading...")),
-      );
-    }
+    
 
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
