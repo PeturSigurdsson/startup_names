@@ -8,8 +8,10 @@ import 'dart:math';
 
 class CompanyController {
   final FlutterSecureStorage storage = FlutterSecureStorage();
+  final reload;
+
   List<Company> list = [];
-  CompanyController();
+  CompanyController({required this.reload});
 
   saveList() async {
     String encoded = jsonEncode(list);
@@ -23,11 +25,10 @@ class CompanyController {
     }
   }
 
-  createCompany(Function reload) {
+  createCompany() {
     Random ran = Random();
     Company company = Company(
         avatar: ran.nextInt(994), name: createCompanyName(), id: list.length);
-    company.setReload(reload);
     list.add(company);
     createFounderName(company);
     createDirt(company.getName());
@@ -53,7 +54,7 @@ class CompanyController {
       String name = names[first] + " " + names[last];
       name = name.replaceAll("\n", "");
       company.setFounderName(name);
-      company.reload();
+      reload(company.getID(), list);
     });
   }
 
@@ -71,7 +72,7 @@ class CompanyController {
     if (password == secret.toString()) {
       storage.read(key: company.getName()).then((res) {
         company.setDirt(res.toString());
-        company.reload(list);
+        reload(company.getID(), list);
       });
       return true;
     }
@@ -81,7 +82,7 @@ class CompanyController {
   lockDirt(Company company) {
     storage.write(key: company.getName(), value: company.getDirt()).then((res) {
       company.setDirt("");
-      company.reload(list);
+      reload(company.getID(), list);
     });
   }
 }
@@ -94,9 +95,6 @@ class Company {
 
   String founderName = "";
   String dirt = "";
-  Function reload = () {
-    return;
-  };
 
   Company({this.avatar = 0, this.name = "", this.id = 0})
       : avatarURL = 'https://boredhumans.b-cdn.net/faces2/$avatar.jpg';
@@ -125,16 +123,16 @@ class Company {
     dirt = d;
   }
 
-  void setReload(Function r) {
-    reload = r;
-  }
-
   String getUrl() {
     return avatarURL;
   }
 
   String getName() {
     return name;
+  }
+
+  int getID() {
+    return id;
   }
 
   String getDirt() {

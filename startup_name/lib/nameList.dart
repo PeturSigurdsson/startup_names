@@ -13,13 +13,13 @@ class NameList extends StatefulWidget {
 }
 
 class _NameListState extends State<NameList> {
-  final CompanyController cc;
-  _NameListState() : cc = CompanyController();
+  late final CompanyController cc;
+  _NameListState();
 
   _addCompany() {
+    cc.createCompany();
     setState(() {
-      int index = cc.list.length;
-      cc.createCompany((l) => setState(() => l[index] = l[index]));
+      cc.list = cc.list;
     });
   }
 
@@ -33,17 +33,15 @@ class _NameListState extends State<NameList> {
 
   loadState() {
     cc.loadList();
-    for (Company c in cc.list) {
-      c.setReload((l) => setState(() => l[c.id] = l[c.id]));
-    }
-    setState(() {
-      cc.list = cc.list;
-    });
   }
 
   @override
   void initState() {
-    loadState();
+    cc = CompanyController(reload: (int id, List<Company> list) {
+      setState(() {
+        list[id] = list[id];
+      });
+    });
     super.initState();
   }
 
