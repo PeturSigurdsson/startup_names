@@ -13,7 +13,7 @@ class NameList extends StatefulWidget {
 }
 
 class _NameListState extends State<NameList> {
-  late final CompanyController cc;
+  final CompanyController cc = CompanyController();
   _NameListState();
 
   _addCompany() {
@@ -37,11 +37,6 @@ class _NameListState extends State<NameList> {
 
   @override
   void initState() {
-    cc = CompanyController(reload: (int id, List<Company> list) {
-      setState(() {
-        list[id] = list[id];
-      });
-    });
     super.initState();
   }
 

@@ -12,7 +12,7 @@ class ListCard extends StatefulWidget {
 }
 
 class _ListCardState extends State<ListCard> {
-  final Company company;
+  Company company;
   final CompanyController cc;
   TextEditingController tec = TextEditingController();
   _ListCardState({required this.company, required this.cc});
@@ -21,6 +21,16 @@ class _ListCardState extends State<ListCard> {
   void dispose() {
     tec.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    cc.setReload((c) {
+      setState(() {
+        company = c;
+      });
+    });
+    super.initState();
   }
 
   @override

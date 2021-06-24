@@ -8,10 +8,10 @@ import 'dart:math';
 
 class CompanyController {
   final FlutterSecureStorage storage = FlutterSecureStorage();
-  final reload;
+  Function reload = (Company company) {};
 
   List<Company> list = [];
-  CompanyController({required this.reload});
+  CompanyController();
 
   saveList() async {
     String encoded = jsonEncode(list);
@@ -54,7 +54,7 @@ class CompanyController {
       String name = names[first] + " " + names[last];
       name = name.replaceAll("\n", "");
       company.setFounderName(name);
-      reload(company.getID(), list);
+      reload(company);
     });
   }
 
@@ -72,7 +72,7 @@ class CompanyController {
     if (password == secret.toString()) {
       storage.read(key: company.getName()).then((res) {
         company.setDirt(res.toString());
-        reload(company.getID(), list);
+        reload(company);
       });
       return true;
     }
@@ -82,8 +82,12 @@ class CompanyController {
   lockDirt(Company company) {
     storage.write(key: company.getName(), value: company.getDirt()).then((res) {
       company.setDirt("");
-      reload(company.getID(), list);
+      reload(company);
     });
+  }
+
+  setReload(Function r) {
+    reload = r;
   }
 }
 
