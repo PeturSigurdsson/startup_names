@@ -1,20 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:startup_name/company.dart';
 import 'package:startup_name/customDrawer.dart';
 import 'package:startup_name/expandableRow.dart';
 
 class NameList extends StatefulWidget {
-  NameList({Key? key}) : super(key: key);
+  NameList({Key? key, required this.cc}) : super(key: key);
 
+  final CompanyController cc;
   final String title = "Companies";
 
   @override
-  _NameListState createState() => _NameListState();
+  _NameListState createState() => _NameListState(cc: cc);
 }
 
 class _NameListState extends State<NameList> {
-  final CompanyController cc = CompanyController();
-  _NameListState();
+  _NameListState({required this.cc});
+
+  final CompanyController cc;
+
+  void initializeFF() async {
+    bool _error = true;
+    bool _initialized = false;
+
+    try {
+      await Firebase.initializeApp();
+      _initialized = true;
+      print("Initialized");
+    } catch (error) {
+      print("An error occured: $error");
+      _error = true;
+    }
+    if (_error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error loading firebase")),
+      );
+    } else if (!_initialized) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Loading...")),
+      );
+    }
+  }
 
   _addCompany() {
     cc.createCompany();
@@ -37,11 +63,14 @@ class _NameListState extends State<NameList> {
 
   @override
   void initState() {
+    loadState();
+    initializeFF();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    saveState();
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -78,7 +107,7 @@ class _NameListState extends State<NameList> {
                 child: ListView(
                   shrinkWrap: true,
                   padding: const EdgeInsets.all(10),
-                  children: cc.list
+                  children: cc.list.values
                       .map<ExpandableRow>(
                         (e) => _mappingFunction(e),
                       )

@@ -10,7 +10,7 @@ class CompanyController {
   final FlutterSecureStorage storage = FlutterSecureStorage();
   Function reload = (Company company) {};
 
-  List<Company> list = [];
+  Map<String, Company> list = {};
   CompanyController();
 
   saveList() async {
@@ -21,17 +21,26 @@ class CompanyController {
   loadList() async {
     var encoded = await storage.read(key: "list");
     if (encoded != null) {
-      list = jsonDecode(encoded);
+      Map<String, dynamic> decoded = jsonDecode(encoded);
+      for (Map<String, dynamic> unit in decoded.values) {
+        Company c = Company.fromJson(unit);
+        list[c.getName()] = c;
+      }
     }
+  }
+
+  deleteList() async {
+    storage.delete(key: "list");
+    list = {};
   }
 
   createCompany() {
     Random ran = Random();
     Company company = Company(
         avatar: ran.nextInt(994), name: createCompanyName(), id: list.length);
-    list.add(company);
     createFounderName(company);
     createDirt(company.getName());
+    list[company.getName()] = company;
   }
 
   String createCompanyName() {
@@ -103,20 +112,22 @@ class Company {
   Company({this.avatar = 0, this.name = "", this.id = 0})
       : avatarURL = 'https://boredhumans.b-cdn.net/faces2/$avatar.jpg';
 
-  Map toJson() => {
-        avatar: avatar,
-        name: name,
-        id: id,
-        avatarURL: avatarURL,
-        founderName: founderName,
-      };
+  Map<String, dynamic> toJson() {
+    return {
+      "avatar": avatar,
+      "name": name,
+      "id": id,
+      "avatarURL": avatarURL,
+      "founderName": founderName,
+    };
+  }
 
-  fromJson(json) {
-    avatar = json["avatar"];
-    name = json["name"];
-    id = json["id"];
-    avatarURL = json["avatarURL"];
-    founderName = json["founderName"];
+  factory Company.fromJson(Map<String, dynamic> json) {
+    Company c =
+        Company(avatar: json["avatar"], name: json["name"], id: json["id"]);
+    c.setUrl(json["avatarURL"]);
+    c.setFounderName(json["founderName"]);
+    return c;
   }
 
   void setFounderName(name) {
@@ -125,6 +136,10 @@ class Company {
 
   void setDirt(String d) {
     dirt = d;
+  }
+
+  void setUrl(url) {
+    avatarURL = url;
   }
 
   String getUrl() {
